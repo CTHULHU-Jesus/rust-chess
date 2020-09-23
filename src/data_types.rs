@@ -7,7 +7,7 @@ pub struct Move {
 }
 
 #[derive(Clone,Copy,PartialEq,Eq)]
-pub enum Piece_Type {
+pub enum PieceType {
     Pawn,
     Bishop,
     Knight,
@@ -24,29 +24,29 @@ pub enum Player {
 }
 
 #[derive(Clone,Copy,PartialEq,Eq)]
-pub enum Piece {P(Player,Piece_Type)}
+pub enum Piece {P(Player,PieceType)}
 
 
 pub type Board = [[Option<Piece> ; 8] ; 8];
 
 use Player::*;
-use Piece_Type::*;
+use PieceType::*;
 use Piece::*;
 
 
 
-const fn SP(p : Player,pic : Piece_Type) -> Option<Piece> { Some(Piece::P(p,pic)) }
+const fn sp(p : Player,pic : PieceType) -> Option<Piece> { Some(Piece::P(p,pic)) }
 
-// inital_board
-pub const inital_board : Board = 
-    [[SP(White,Rook),SP(White,Knight),SP(White,Bishop),SP(White,King),SP(White,Queen),SP(White,Bishop),SP(White,Knight),SP(White,Rook)]
-    ,[SP(White,Pawn); 8]
+// INITAL_BOARD
+pub const INITAL_BOARD : Board = 
+    [[sp(White,Rook),sp(White,Knight),sp(White,Bishop),sp(White,King),sp(White,Queen),sp(White,Bishop),sp(White,Knight),sp(White,Rook)]
+    ,[sp(White,Pawn); 8]
     ,[None; 8]
     ,[None; 8]
     ,[None; 8]
     ,[None; 8]
-    ,[SP(Black,Pawn); 8]
-    ,[SP(Black,Rook),SP(Black,Knight),SP(Black,Bishop),SP(Black,King),SP(Black,Queen),SP(Black,Bishop),SP(Black,Knight),SP(Black,Rook)]];
+    ,[sp(Black,Pawn); 8]
+    ,[sp(Black,Rook),sp(Black,Knight),sp(Black,Bishop),sp(Black,King),sp(Black,Queen),sp(Black,Bishop),sp(Black,Knight),sp(Black,Rook)]];
 
 pub trait Show {
     fn show(&self) -> String;
@@ -57,8 +57,8 @@ pub trait Read<T> {
 }
 
 
-impl Read<Piece_Type> for String {
-    fn read(&self) -> Option<Piece_Type> {
+impl Read<PieceType> for String {
+    fn read(&self) -> Option<PieceType> {
         let mut s = self.clone();
         s.make_ascii_lowercase();
         match s.as_str().trim() {
@@ -73,7 +73,7 @@ impl Read<Piece_Type> for String {
     }
 }
 
-impl Show for Piece_Type {
+impl Show for PieceType {
     fn show(&self) -> String {
         String::from(
             match self {

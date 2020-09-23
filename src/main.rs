@@ -1,10 +1,11 @@
-mod dataTypes;
+mod data_types;
 
-use dataTypes::*;
+use data_types::*;
 use Player::*;
-use Piece_Type::*;
+use PieceType::*;
 use Piece::*;
 use std::io;
+
 fn not(x:bool) -> bool {
     if x { false } else { true }
 }
@@ -16,7 +17,7 @@ fn get_player(board : &Board,i: isize, j : isize) -> Option<Player> {
         }
 }
 
-fn valid_move(board : &Board, player : Player, piece : Piece_Type, act : &Move) -> bool {
+fn valid_move(board : &Board, player : Player, piece : PieceType, act : &Move) -> bool {
     
     let (old_i,old_j) = act.from;
     let (old_i,old_j) = (old_i as isize,old_j as isize);
@@ -184,9 +185,9 @@ fn valid_move(board : &Board, player : Player, piece : Piece_Type, act : &Move) 
 }
 // parse things like 'a2 to b2'
 fn parse_move(board :&Board, input : &String,player : Player) -> Result<Move,&'static str> {
-    const parse_err : &str = "parse error";
-    const select_err : &str = "no select";
-    const move_err : &str = "bad move";
+    const PARSE_ERR : &str = "parse error";
+    const SELECT_ERR : &str = "no select";
+    const MOVE_ERR : &str = "bad move";
     fn find(c: char) -> Result<usize,&'static str> {
         match c{
             'a' | '1' => {Ok(0)}
@@ -197,49 +198,49 @@ fn parse_move(board :&Board, input : &String,player : Player) -> Result<Move,&'s
             'f' | '6' => {Ok(5)}
             'g' | '7' => {Ok(6)}
             'h' | '8' => {Ok(7)}
-            _ => {Err(parse_err)}
+            _ => {Err(PARSE_ERR)}
         }
     };
     fn parse_point(word : String) -> Result<(usize,usize),&'static str> {
         let mut chars = word.chars();
-        let x : usize = find(chars.next().ok_or(parse_err)?)?;
-        let y : usize = find(chars.next().ok_or(parse_err)?)?;
+        let x : usize = find(chars.next().ok_or(PARSE_ERR)?)?;
+        let y : usize = find(chars.next().ok_or(PARSE_ERR)?)?;
         if chars.next() == None {
             Ok((x,y))
         } else {
-            Err(parse_err)
+            Err(PARSE_ERR)
         }
     };
     let mut input = (*input).clone();
     input = String::from(input.trim());
     let mut input = input.split_whitespace();
-    let word1 = input.next().ok_or(parse_err)?;
-    let word2 = input.next().ok_or(parse_err)?;
-    let word3 = input.next().ok_or(parse_err)?;
+    let word1 = input.next().ok_or(PARSE_ERR)?;
+    let word2 = input.next().ok_or(PARSE_ERR)?;
+    let word3 = input.next().ok_or(PARSE_ERR)?;
     let from : (usize,usize) = parse_point(word1.to_string())?;
     let to : (usize,usize) = parse_point(word3.to_string())?;
     let act = Ok(Move {from:from,to:to});
 
     if word2 != "to" {
-        Err(parse_err)
+        Err(PARSE_ERR)
     } else
     {
         let (old_i,old_j) = from;
         match board[old_i][old_j]{
-            None => { Err(select_err) }
+            None => { Err(SELECT_ERR) }
             Some(P(p_player,piece)) =>
                 {
-                    println!("selected {} at ({},{})", P(p_player,piece).show(),old_i,old_j);
+                    // println!("selected {} at ({},{})", P(p_player,piece).show(),old_i,old_j);
                     if p_player == player {
                         let action = act.expect("");
                        if valid_move(board,player,piece,&action) {
                            act
                        } else {
-                           Err(move_err)
+                           Err(MOVE_ERR)
                        }
                     } else
                     {
-                        Err(select_err)
+                        Err(SELECT_ERR)
                     }
                 }
         }
@@ -273,13 +274,13 @@ fn who_won(board : &Board) -> Option<Player> {
 }
 
 fn main() {
-    let mut board : Board = inital_board;
+    let mut board : Board = INITAL_BOARD;
     let mut winner : Option<Player> = None;
     let mut turn : Player = White; // white goes First
     let mut input;
     while winner == None {
         print_board(board);
-        println!("Player {}, what is your move?", turn.show());
+        println!("{} player, what is your move?", turn.show());
         input = String::from(""); // reset input
         io::stdin().read_line(&mut input).expect("could not get input");
         match parse_move(&board, &input, turn) {
@@ -294,8 +295,12 @@ fn main() {
             Err("no select") => {
                println!("You did not select a valid piece"); 
             }
-            Err("bad move") => {}
-            Err(_) => {}
+            Err("bad move") => {
+                println!("That does not move like that")
+            }
+            Err(_) => {
+                println!("Unknown error")
+            }
         }
     }
     match winner {
